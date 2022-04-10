@@ -1,0 +1,6 @@
+[submodule "include/List"]
+	path = include/List
+	url = git@github.com:futherus/List.git
+[submodule "utils/logs"]
+	path = utils/logs
+	url = git@github.com:futherus/logs.git
