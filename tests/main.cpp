@@ -5,15 +5,15 @@
 #include "../utils/hash.h"
 #include "../utils/stats.h"
 
-void print_elem(FILE* stream, const elem_t* elem)
+void print_ht_elem(FILE* stream, const ht_elem_t* elem)
 {
-    fprintf(stream, "%s", elem->key);
+    fprintf(stream, "%lg", *elem);
 }
 
 int main()
 {
     logs_init("log.html");
-    hashtable_dump_init(logs_get(), &print_elem);
+    hashtable_dump_init(logs_get(), &print_ht_elem);
 
     Hashtable ht = {};
     hashtable_ctor(&ht, 1024, &qhashfnv1_64);
@@ -23,12 +23,12 @@ int main()
     for(int iter = 10; iter < 1024*16 && !err; iter++)
     {
         sprintf(buffer, "Hello %d", iter);
-        hashtable_insert(&ht, buffer, (void*) iter);
+        hashtable_insert(&ht, buffer, iter);
     }
 
-    void* val = nullptr;
+    ht_elem_t val = 0;
     err = hashtable_find(&ht, "Hello 10", &val);
-    LOG$("find: %d, %p", err, val);
+    //LOG$("find: %d, %p", err, val);
 
     hashtable_dump(&ht, "Dump");
 
@@ -45,12 +45,12 @@ int main()
     for(int iter = 10; iter < 1024*16 && !err; iter++)
     {
         sprintf(buffer, "Hey %d", iter);
-        err = hashtable_insert(&ht, buffer, (void*) iter);
+        err = hashtable_insert(&ht, buffer,  iter);
     }
 
-    val = nullptr;
+    val = 0;
     err = hashtable_find(&ht, "Hey 20", &val);
-    LOG$("find: %d, %p", err, val);
+    //LOG$("find: %d, %p", err, val);
 
     hashtable_dump(&ht, "Dump1");
 

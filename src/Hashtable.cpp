@@ -16,7 +16,7 @@
         }                                                                             \
     } while(0)                                                                        \
 
-int hashtable_ctor(Hashtable* tbl, size_t size, uint64_t (*hash_func)(const void* key, size_t len))
+int hashtable_ctor(Hashtable* tbl, size_t size, uint64_t (*hash_func)(const void* data, size_t len))
 {
     assert(tbl && hash_func);
     ASSERT(size > 0, HASHTABLE_BAD_SIZE);
@@ -65,7 +65,7 @@ int hashtable_verify(Hashtable* tbl)
     return HASHTABLE_NOERR;
 }
 
-int hashtable_insert(Hashtable* tbl, const char* key, void* value)
+int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
 {
     assert(tbl && key && value);
     assert(tbl->hash_func && tbl->size);
@@ -77,7 +77,7 @@ int hashtable_insert(Hashtable* tbl, const char* key, void* value)
     uint64_t hash = tbl->hash_func(key, len);
 
     List* list = &tbl->data[hash % tbl->size];
-    elem_t tmp = {};
+    list_elem_t tmp = {};
     int tmp_pos = list_front(list, &tmp);
     
     while(tmp_pos > LIST_HEADER_POS && strcmp(key, tmp.key) != 0)
@@ -88,7 +88,7 @@ int hashtable_insert(Hashtable* tbl, const char* key, void* value)
     if(tmp_pos != LIST_HEADER_POS)
         return HASHTABLE_ALREADY_INSERTED;
     
-    elem_t elem = {};
+    list_elem_t elem = {};
     elem.obj = value;
     memcpy(elem.key, key, len);
 
@@ -110,7 +110,7 @@ int hashtable_delete(Hashtable* tbl, const char* key)
     uint64_t hash = tbl->hash_func(key, len);
 
     List* list = &tbl->data[hash % tbl->size];
-    elem_t tmp = {};
+    list_elem_t tmp = {};
     int tmp_pos = list_front(list, &tmp);
 
     while(tmp_pos > LIST_HEADER_POS && strcmp(key, tmp.key) != 0)
@@ -126,7 +126,7 @@ int hashtable_delete(Hashtable* tbl, const char* key)
     return HASHTABLE_NOERR;
 }
 
-int hashtable_find(Hashtable* tbl, const char* key, void** retvalue)
+int hashtable_find(Hashtable* tbl, const char* key, ht_elem_t* retvalue)
 {
     assert(tbl && key && retvalue);
     assert(tbl->hash_func && tbl->size);
@@ -138,7 +138,7 @@ int hashtable_find(Hashtable* tbl, const char* key, void** retvalue)
     uint64_t hash = tbl->hash_func(key, len);
 
     List* list = &tbl->data[hash % tbl->size];
-    elem_t tmp = {};
+    list_elem_t tmp = {};
     int tmp_pos = list_front(list, &tmp);
 
     while(tmp_pos > LIST_HEADER_POS && strcmp(key, tmp.key) != 0)
