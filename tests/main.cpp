@@ -12,7 +12,7 @@ void print_ht_elem(FILE* stream, const ht_elem_t* elem)
 
 int main()
 {
-    logs_init("log.html");
+    logs_init("test_main.html");
     hashtable_dump_init(logs_get(), &print_ht_elem);
 
     Hashtable ht = {};
@@ -33,28 +33,6 @@ int main()
     hashtable_dump(&ht, "Dump");
 
     FILE* stream = fopen("collisions.csv", "w");
-    assert(stream);
-    stats_collisions(&ht, stream);
-    fclose(stream);
-
-    hashtable_dtor(&ht);
-
-    hashtable_ctor(&ht, 1024, &qhashfnv1_64);
-
-    buffer[20] = {};
-    for(int iter = 10; iter < 1024*16 && !err; iter++)
-    {
-        sprintf(buffer, "Hey %d", iter);
-        err = hashtable_insert(&ht, buffer,  iter);
-    }
-
-    val = 0;
-    err = hashtable_find(&ht, "Hey 20", &val);
-    //LOG$("find: %d, %p", err, val);
-
-    hashtable_dump(&ht, "Dump1");
-
-    stream = fopen("collisions1.csv", "w");
     assert(stream);
     stats_collisions(&ht, stream);
     fclose(stream);

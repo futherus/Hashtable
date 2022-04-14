@@ -67,7 +67,7 @@ int hashtable_verify(Hashtable* tbl)
 
 int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
 {
-    assert(tbl && key && value);
+    assert(tbl && key);
     assert(tbl->hash_func && tbl->size);
 
     size_t len = strlen(key);
