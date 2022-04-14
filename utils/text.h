@@ -18,7 +18,9 @@ struct Text
     Index* index_arr      = nullptr;
 };
 
-int text_ctor(Text*, char* infile_name);
+int text_ctor(Text*, const char* infile_name);
+
+int text_print(Text*, const char* outfile_name);
 
 void text_dtor(Text*);
 

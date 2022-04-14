@@ -1,0 +1,23 @@
+# started on Thu Apr 14 22:27:48 2022
+
+
+ Performance counter stats for './test4':
+
+            248,54 msec task-clock:u              #    0,997 CPUs utilized          
+                 0      context-switches:u        #    0,000 /sec                   
+                 0      cpu-migrations:u          #    0,000 /sec                   
+             2 102      page-faults:u             #    8,457 K/sec                  
+       852 515 538      cycles:u                  #    3,430 GHz                    
+         3 292 233      stalled-cycles-frontend:u #    0,39% frontend cycles idle   
+       476 656 868      stalled-cycles-backend:u  #   55,91% backend cycles idle    
+     1 766 658 212      instructions:u            #    2,07  insn per cycle         
+                                                  #    0,27  stalled cycles per insn
+       267 079 119      branches:u                #    1,075 G/sec                  
+           460 360      branch-misses:u           #    0,17% of all branches        
+
+       0,249313741 seconds time elapsed
+
+       0,246092000 seconds user
+       0,003325000 seconds sys
+
+

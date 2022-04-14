@@ -87,7 +87,7 @@ static int create_index_arr(Index** dst_index_arr, size_t* dst_index_arr_size, c
     return 0;
 }
 
-static int create_buffer(char** dst_buffer, size_t* dst_buffer_size, char* file_name)
+static int create_buffer(char** dst_buffer, size_t* dst_buffer_size, const char* file_name)
 {
     LOG$("check file");
     struct stat file_stat = {};
@@ -143,7 +143,7 @@ static int create_buffer(char** dst_buffer, size_t* dst_buffer_size, char* file_
     return 0;
 }
 
-int text_ctor(Text* text, char* file_name)
+int text_ctor(Text* text, const char* file_name)
 {
     assert(text && file_name);
 
@@ -175,4 +175,38 @@ void text_dtor(Text* text)
 {
     free(text->index_arr);
     free(text->buffer);
+}
+
+static int print_line(char* begin, size_t size, FILE* ostream)
+{
+    assert(begin && ostream);
+
+    if(fwrite(begin, sizeof(char), size, ostream) != size)
+        return 1;
+
+    if(fwrite("\n", sizeof(char), 1, ostream) != 1)
+        return 1;
+
+    return 1;
+}
+
+int text_print(Text* text, const char* file_name)
+{
+    assert(text && file_name);
+
+	FILE* ostream = fopen(file_name, "w");
+	if(ostream == nullptr)
+		return 1;
+
+	for(size_t iter = 0; iter < text->index_arr_size; iter++)
+    {
+        int msg = print_line(text->index_arr[iter].begin, text->index_arr[iter].size, ostream);
+            if(msg != 1)
+                return msg;
+    }
+
+	if(fclose(ostream) == EOF)
+		return 1;
+
+	return 0;
 }

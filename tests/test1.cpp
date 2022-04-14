@@ -33,6 +33,14 @@ int main()
         return err;
     }
 
+    err = text_print(&text, "test1_text.txt");
+    if(err)
+    {
+        text_dtor(&text);
+        hashtable_dtor(&ht);
+        return err;
+    }
+
     LOG$("Words amount: %lu\n", text.index_arr_size);
 
     for(size_t iter = 0; iter < text.index_arr_size; iter++)

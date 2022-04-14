@@ -13,10 +13,12 @@ os.chdir(sys.argv[1])
 print("\n-----------------------------------Running tests-----------------------------------\n")
 
 for arg in sys.argv[2::]:
+    print("Test: {:70s}".format(arg), end = "", flush = True)
+
     output = os.popen(arg)
     
     succ =  RED + "[FAIL]" + ENDC
     if(output.close() == None):
         succ = GREEN + "[ OK ]" + ENDC
     
-    print("Test: {:70s} {}".format(arg, succ))
+    print("{}".format(succ))

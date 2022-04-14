@@ -1,0 +1,23 @@
+# started on Thu Apr 14 22:28:25 2022
+
+
+ Performance counter stats for './test3':
+
+         18 058,58 msec task-clock:u              #    0,999 CPUs utilized          
+                 0      context-switches:u        #    0,000 /sec                   
+                 0      cpu-migrations:u          #    0,000 /sec                   
+             2 193      page-faults:u             #  121,438 /sec                   
+    76 750 644 604      cycles:u                  #    4,250 GHz                    
+       104 501 551      stalled-cycles-frontend:u #    0,14% frontend cycles idle   
+    49 160 502 006      stalled-cycles-backend:u  #   64,05% backend cycles idle    
+   155 329 138 850      instructions:u            #    2,02  insn per cycle         
+                                                  #    0,32  stalled cycles per insn
+    35 806 384 681      branches:u                #    1,983 G/sec                  
+        18 935 756      branch-misses:u           #    0,05% of all branches        
+
+      18,068148611 seconds time elapsed
+
+      18,041620000 seconds user
+       0,016662000 seconds sys
+
+

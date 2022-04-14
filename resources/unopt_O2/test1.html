@@ -1,0 +1,61 @@
+
+<html>
+    <head>
+        <title>
+            Log
+        </title>
+        <style>
+            .ok {color: springgreen;font-weight: bold;}
+            .error{color: red;font-weight: bold; font-size: 30}
+            .log{color: #C5D0E6; font-size: 14}
+            .msg{color: #E59E1F;text-align: center;font-weight: bold; font-size: 20}
+            .title{color: #E59E1F;text-align: center; font-size: 17}
+        </style>
+    </head>
+    <body bgcolor = "#2F353B">
+        <pre class = "log">
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Activated this stream
+ (22:19:46 14.04.2022)
+
+<span class = "title">Creating buffer
+</span>				at utils/text.cpp : 153 : int text_ctor(Text*, const char*)
+<span class = "title">check file
+</span>				at utils/text.cpp : 92 : int create_buffer(char**, size_t*, const char*)
+<span class = "title">calloc
+</span>				at utils/text.cpp : 99 : int create_buffer(char**, size_t*, const char*)
+<span class = "title">open file
+</span>				at utils/text.cpp : 105 : int create_buffer(char**, size_t*, const char*)
+<span class = "title">read file
+</span>				at utils/text.cpp : 114 : int create_buffer(char**, size_t*, const char*)
+<span class = "title">realloc
+</span>				at utils/text.cpp : 130 : int create_buffer(char**, size_t*, const char*)
+<span class = "title">Creating indecies
+</span>				at utils/text.cpp : 157 : int text_ctor(Text*, const char*)
+<span class = "title">Words amount: 68789
+
+</span>				at tests/test1.cpp : 44 : int main()
+<span class = "title">Iterations: 0
+</span>				at tests/test1.cpp : 59 : int main()
+<span class = "title">Iterations: 10000
+</span>				at tests/test1.cpp : 59 : int main()
+<span class = "title">Iterations: 20000
+</span>				at tests/test1.cpp : 59 : int main()
+<span class = "title">Iterations: 30000
+</span>				at tests/test1.cpp : 59 : int main()
+<span class = "title">Iterations: 40000
+</span>				at tests/test1.cpp : 59 : int main()
+<span class = "title">Iterations: 50000
+</span>				at tests/test1.cpp : 59 : int main()
+<span class = "title">Iterations: 60000
+</span>				at tests/test1.cpp : 59 : int main()
+<span class = "title">Inserted
+</span>				at tests/test1.cpp : 63 : int main()
+<span class = "title">Destructors
+</span>				at tests/test1.cpp : 71 : int main()
+
+Disactivated this stream
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        </pre>
+    </body>
+</html>

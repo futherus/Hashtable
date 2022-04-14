@@ -1,0 +1,23 @@
+# started on Thu Apr 14 22:28:20 2022
+
+
+ Performance counter stats for './test2':
+
+          1 325,18 msec task-clock:u              #    0,999 CPUs utilized          
+                 0      context-switches:u        #    0,000 /sec                   
+                 0      cpu-migrations:u          #    0,000 /sec                   
+             1 852      page-faults:u             #    1,398 K/sec                  
+     5 471 020 760      cycles:u                  #    4,128 GHz                    
+        26 831 007      stalled-cycles-frontend:u #    0,49% frontend cycles idle   
+     3 386 478 433      stalled-cycles-backend:u  #   61,90% backend cycles idle    
+     9 974 035 753      instructions:u            #    1,82  insn per cycle         
+                                                  #    0,34  stalled cycles per insn
+     2 188 639 643      branches:u                #    1,652 G/sec                  
+         6 801 205      branch-misses:u           #    0,31% of all branches        
+
+       1,325889288 seconds time elapsed
+
+       1,312373000 seconds user
+       0,013323000 seconds sys
+
+

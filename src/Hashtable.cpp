@@ -19,7 +19,7 @@
 int hashtable_ctor(Hashtable* tbl, size_t size, uint64_t (*hash_func)(const void* data, size_t len))
 {
     assert(tbl && hash_func);
-    ASSERT(size > 0, HASHTABLE_BAD_SIZE);
+    assert(size > 0);
 
     tbl->data = (List*) calloc(size, sizeof(List));
     ASSERT(tbl->data, HASHTABLE_BAD_ALLOC);
@@ -56,8 +56,8 @@ int hashtable_verify(Hashtable* tbl)
 {
     assert(tbl);
 
-    ASSERT(tbl->data && tbl->hash_func, HASHTABLE_NOT_INIT);
-    ASSERT(tbl->size, HASHTABLE_BAD_SIZE);
+    assert(tbl->data && tbl->hash_func);
+    assert(tbl->size > 0);
 
     for(size_t iter = 0; iter < tbl->size; iter++)
         ASSERT(!list_verify(&tbl->data[iter]), HASHTABLE_BAD_LIST);

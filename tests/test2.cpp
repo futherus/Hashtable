@@ -32,6 +32,16 @@ int main()
         hashtable_dtor(&ht);
         return err;
     }
+    
+    err = text_print(&text, "test2_text.txt");
+    if(err)
+    {
+        text_dtor(&text);
+        hashtable_dtor(&ht);
+        return err;
+    }
+
+
 
     LOG$("Words amount: %lu\n", text.index_arr_size);
 
