@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-
+#include "../utils/logs/logs.h"
 #include "Hashtable.h"
 
 #define ASSERT(CONDITION__, ERROR__)                                                  \
@@ -40,7 +40,9 @@ void hashtable_dtor(Hashtable* tbl)
     if(tbl->data)
     {
         for(size_t iter = 0; iter < tbl->size; iter++)
+        {
             list_dtor(&tbl->data[iter]);
+        }
         
         free(tbl->data);
     }
@@ -70,17 +72,14 @@ int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
     assert(tbl && key);
     assert(tbl->hash_func && tbl->size);
 
-    size_t len = strlen(key);
-    if(len > KEY_SIZE)
-        len = KEY_SIZE;
-
-    uint64_t hash = tbl->hash_func(key, len);
+    __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
+    uint64_t hash = tbl->hash_func(key, KEY_SIZE);
 
     List* list = &tbl->data[hash % tbl->size];
     list_elem_t tmp = {};
     int tmp_pos = list_front(list, &tmp);
     
-    while(tmp_pos > LIST_HEADER_POS && strcmp(key, tmp.key) != 0)
+    while(tmp_pos > LIST_HEADER_POS && _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, tmp.key)) != -1)
         tmp_pos = list_next(list, tmp_pos, &tmp);
 
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
@@ -90,7 +89,7 @@ int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
     
     list_elem_t elem = {};
     elem.obj = value;
-    memcpy(elem.key, key, len);
+    elem.key = avx_key;
 
     tmp_pos = list_push_back(list, elem);
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST);
@@ -103,25 +102,23 @@ int hashtable_delete(Hashtable* tbl, const char* key)
     assert(tbl && key);
     assert(tbl->hash_func && tbl->size);
 
-    size_t len = strlen(key);
-    if(len > KEY_SIZE)
-        len = KEY_SIZE;
-    
-    uint64_t hash = tbl->hash_func(key, len);
+    __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
+    uint64_t hash = tbl->hash_func(key, KEY_SIZE);
 
     List* list = &tbl->data[hash % tbl->size];
     list_elem_t tmp = {};
     int tmp_pos = list_front(list, &tmp);
 
-    while(tmp_pos > LIST_HEADER_POS && strcmp(key, tmp.key) != 0)
+    while(tmp_pos > LIST_HEADER_POS && _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, tmp.key)) != -1)
         tmp_pos = list_next(list, tmp_pos, &tmp);
 
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
 
     if(tmp_pos == LIST_HEADER_POS)
         return HASHTABLE_NOTFOUND;
-    
-    ASSERT(!list_delete(list, tmp_pos), HASHTABLE_BAD_LIST);
+
+    tmp_pos = list_delete(list, tmp_pos);
+    ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST);
 
     return HASHTABLE_NOERR;
 }
@@ -131,17 +128,14 @@ int hashtable_find(Hashtable* tbl, const char* key, ht_elem_t* retvalue)
     assert(tbl && key && retvalue);
     assert(tbl->hash_func && tbl->size);
 
-    size_t len = strlen(key);
-    if(len > KEY_SIZE)
-        len = KEY_SIZE;
-    
-    uint64_t hash = tbl->hash_func(key, len);
+    __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
+    uint64_t hash = tbl->hash_func(key, KEY_SIZE);
 
     List* list = &tbl->data[hash % tbl->size];
     list_elem_t tmp = {};
     int tmp_pos = list_front(list, &tmp);
 
-    while(tmp_pos > LIST_HEADER_POS && strcmp(key, tmp.key) != 0)
+    while(tmp_pos > LIST_HEADER_POS && _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, tmp.key)) != -1)
         tmp_pos = list_next(list, tmp_pos, &tmp);
 
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code

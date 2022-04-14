@@ -8,8 +8,8 @@ struct Hashtable
 {
     uint64_t (*hash_func)(const void* key, size_t len) = nullptr;
 
-    List*  data = nullptr;
-    size_t size = 0;
+    List*  data   = nullptr;
+    size_t size   = 0;
 };
 
 enum hashtable_err
@@ -32,7 +32,6 @@ int  hashtable_find  (Hashtable* tbl, const char* key, ht_elem_t* retvalue);
 
 void hashtable_dump_init(FILE* dumpstream, void(*print_func)(FILE*, const ht_elem_t*));
 void hashtable_dump(Hashtable* tbl, const char* msg = nullptr);
-
 
 int  hashtable_verify(Hashtable* tbl);
 

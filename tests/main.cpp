@@ -5,9 +5,9 @@
 #include "../utils/hash.h"
 #include "../utils/stats.h"
 
-void print_ht_elem(FILE* stream, const ht_elem_t* elem)
+static void print_ht_elem(FILE* stream, const ht_elem_t* elem)
 {
-    fprintf(stream, "%lg", *elem);
+    fprintf(stream, "%lu", *elem);
 }
 
 int main()
@@ -30,7 +30,7 @@ int main()
     err = hashtable_find(&ht, "Hello 10", &val);
     //LOG$("find: %d, %p", err, val);
 
-    hashtable_dump(&ht, "Dump");
+    // hashtable_dump(&ht, "Dump");
 
     FILE* stream = fopen("collisions.csv", "w");
     assert(stream);

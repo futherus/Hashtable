@@ -12,20 +12,14 @@ static void print_ht_elem(FILE* stream, const ht_elem_t* elem)
     fprintf(stream, "%lu", *elem);
 }
 
-static uint64_t hash_test(const void* data, size_t len)
+static uint64_t hash_test(const void*, size_t)
 {
-    uint64_t hash = 0;
-    for(size_t i = 0; i < len; i++)
-    {
-        hash += (size_t) *((const char*) data + i);
-    }
-
-    return hash;
+    return 1;
 }
 
 int main()
 {
-    logs_init("test1.html");
+    logs_init("hash_test1.html");
 
     Hashtable ht = {};
     int err = hashtable_ctor(&ht, 256, &hash_test);
@@ -36,6 +30,14 @@ int main()
     err = text_ctor(&text, "../tests/test_text.txt");
     if(err)
     {
+        hashtable_dtor(&ht);
+        return err;
+    }
+
+    err = text_print(&text, "hash_test1_text.txt");
+    if(err)
+    {
+        text_dtor(&text);
         hashtable_dtor(&ht);
         return err;
     }
@@ -61,34 +63,12 @@ int main()
             return err;
         }
 
-        LOG$("Insertion: %lu, %s (%lu), %d", iter, buffer, text.index_arr[iter].size, err);
+        LOG$("Iteration: %lu, %s (%lu), %d", iter, buffer, text.index_arr[iter].size, err);
         
         memset(buffer, 0, KEY_SIZE);
     }
 
     LOG$("Inserted");
-
-    for(size_t iter = 0; iter < text.index_arr_size; iter++)
-    {
-        size_t size = text.index_arr[iter].size;
-        if(size > KEY_SIZE)
-            size = KEY_SIZE;
-        
-        memcpy(buffer, text.index_arr[iter].begin, size);
-
-        err = hashtable_delete(&ht, buffer);
-        LOG$("Deletion: %lu, %s (%lu), %d", iter, buffer, text.index_arr[iter].size, err);
-        if(err && err != HASHTABLE_NOTFOUND)
-        {
-            hashtable_dtor(&ht);
-            text_dtor(&text);
-
-            return err;
-        }
-
-        
-        memset(buffer, 0, KEY_SIZE);
-    }
 
     // FILE* stream = fopen("collisions1.csv", "w");
     // if(!stream)

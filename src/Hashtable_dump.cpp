@@ -20,7 +20,7 @@ static const char HFILL[] = "---------------------------------------------------
 
 static void print_list_elem(FILE* stream, const list_elem_t* elem)
 {
-    fprintf(stream, "`%s`~`", elem->key);
+    fprintf(stream, "`KEY_not_impl`~`"); //, elem->key);
     PRINT_ELEM(stream, &elem->obj);
     fprintf(stream, "`");
 }
