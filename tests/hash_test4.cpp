@@ -8,17 +8,23 @@
 
 void print_ht_elem(FILE* stream, const ht_elem_t* elem)
 {
-    fprintf(stream, "%lg", *elem);
+    fprintf(stream, "%lu", *elem);
 }
 
-static uint64_t hash_test(const void*, size_t)
+static uint32_t hash_test(const void* data, size_t len)
 {
-    return 1;
+    uint32_t hash = 0;
+    for(size_t i = 0; i < len; i++)
+    {
+        hash += (size_t) *((char*) data + i);
+    }
+
+    return hash;
 }
 
 int main()
 {
-    logs_init("test1.html");
+    logs_init("test4.html");
 
     Hashtable ht = {};
     int err = hashtable_ctor(&ht, 256, &hash_test);
@@ -33,7 +39,7 @@ int main()
         return err;
     }
 
-    err = text_print(&text, "test1_text.txt");
+    err = text_print(&text, "test4_text.txt");
     if(err)
     {
         text_dtor(&text);
@@ -43,10 +49,18 @@ int main()
 
     LOG$("Words amount: %lu\n", text.index_arr_size);
 
+    char buffer[KEY_SIZE] = {};
+
     for(size_t iter = 0; iter < text.index_arr_size; iter++)
     {
-        err = hashtable_insert(&ht, text.index_arr[iter].begin, iter);
-        if(err)
+        size_t size = text.index_arr[iter].size;
+        if(size > KEY_SIZE)
+            size = KEY_SIZE;
+        
+        memcpy(buffer, text.index_arr[iter].begin, size);
+
+        err = hashtable_insert(&ht, buffer, iter);
+        if(err && err != HASHTABLE_ALREADY_INSERTED)
         {
             hashtable_dtor(&ht);
             text_dtor(&text);
@@ -54,15 +68,14 @@ int main()
             return err;
         }
 
-        if(iter % 10000 == 0)
-        {
-            LOG$("Iterations: %lu", iter);
-        }
-    }
-
+        LOG$("Iteration: %lu, %s (%lu), %d", iter, buffer, text.index_arr[iter].size, err);
+        
+        memset(buffer, 0, KEY_SIZE);
+    }    
+    
     LOG$("Inserted");
 
-    FILE* stream = fopen("collisions1.csv", "w");
+    FILE* stream = fopen("collisions4.csv", "w");
     if(!stream)
         return 1;
     stats_collisions(&ht, stream);

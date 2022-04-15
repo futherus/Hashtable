@@ -7,7 +7,7 @@
 
 void print_ht_elem(FILE* stream, const ht_elem_t* elem)
 {
-    fprintf(stream, "%lg", *elem);
+    fprintf(stream, "%lu", *elem);
 }
 
 int main()
@@ -16,7 +16,7 @@ int main()
     hashtable_dump_init(logs_get(), &print_ht_elem);
 
     Hashtable ht = {};
-    hashtable_ctor(&ht, 1024, &qhashfnv1_64);
+    hashtable_ctor(&ht, 1024, &crc32);
 
     int err = 0;
     char buffer[20] = {};

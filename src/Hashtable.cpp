@@ -16,7 +16,7 @@
         }                                                                             \
     } while(0)                                                                        \
 
-int hashtable_ctor(Hashtable* tbl, size_t size, uint64_t (*hash_func)(const void* data, size_t len))
+int hashtable_ctor(Hashtable* tbl, size_t size, uint32_t (*hash_func)(const void* data, size_t len))
 {
     assert(tbl && hash_func);
     assert(size > 0);
@@ -70,17 +70,13 @@ int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
     assert(tbl && key);
     assert(tbl->hash_func && tbl->size);
 
-    size_t len = strlen(key);
-    if(len > KEY_SIZE)
-        len = KEY_SIZE;
-
-    uint64_t hash = tbl->hash_func(key, len);
+    uint32_t hash = tbl->hash_func(key, KEY_SIZE);
 
     List* list = &tbl->data[hash % tbl->size];
     list_elem_t tmp = {};
     int tmp_pos = list_front(list, &tmp);
     
-    while(tmp_pos > LIST_HEADER_POS && strcmp(key, tmp.key) != 0)
+    while(tmp_pos > LIST_HEADER_POS && memcmp(key, tmp.key, KEY_SIZE) != 0)
         tmp_pos = list_next(list, tmp_pos, &tmp);
 
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
@@ -90,7 +86,7 @@ int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
     
     list_elem_t elem = {};
     elem.obj = value;
-    memcpy(elem.key, key, len);
+    memcpy(elem.key, key, KEY_SIZE);
 
     tmp_pos = list_push_back(list, elem);
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST);
@@ -103,17 +99,13 @@ int hashtable_delete(Hashtable* tbl, const char* key)
     assert(tbl && key);
     assert(tbl->hash_func && tbl->size);
 
-    size_t len = strlen(key);
-    if(len > KEY_SIZE)
-        len = KEY_SIZE;
-    
-    uint64_t hash = tbl->hash_func(key, len);
+    uint32_t hash = tbl->hash_func(key, KEY_SIZE);
 
     List* list = &tbl->data[hash % tbl->size];
     list_elem_t tmp = {};
     int tmp_pos = list_front(list, &tmp);
 
-    while(tmp_pos > LIST_HEADER_POS && strcmp(key, tmp.key) != 0)
+    while(tmp_pos > LIST_HEADER_POS && memcmp(key, tmp.key, KEY_SIZE) != 0)
         tmp_pos = list_next(list, tmp_pos, &tmp);
 
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
@@ -131,17 +123,13 @@ int hashtable_find(Hashtable* tbl, const char* key, ht_elem_t* retvalue)
     assert(tbl && key && retvalue);
     assert(tbl->hash_func && tbl->size);
 
-    size_t len = strlen(key);
-    if(len > KEY_SIZE)
-        len = KEY_SIZE;
-    
-    uint64_t hash = tbl->hash_func(key, len);
+    uint32_t hash = tbl->hash_func(key, KEY_SIZE);
 
     List* list = &tbl->data[hash % tbl->size];
     list_elem_t tmp = {};
     int tmp_pos = list_front(list, &tmp);
 
-    while(tmp_pos > LIST_HEADER_POS && strcmp(key, tmp.key) != 0)
+    while(tmp_pos > LIST_HEADER_POS && memcmp(key, tmp.key, KEY_SIZE) != 0)
         tmp_pos = list_next(list, tmp_pos, &tmp);
 
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code

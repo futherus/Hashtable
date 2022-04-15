@@ -22,7 +22,7 @@ BINDIR := $(CURDIR)/bin/
 TARGET := $(BINDIR)test_ht
 VPATH  := tests/ utils/ utils/logs
 
-TEST        := main.cpp test1.cpp test2.cpp test3.cpp test4.cpp
+TEST        := main.cpp hash_test1.cpp hash_test2.cpp hash_test3.cpp hash_test4.cpp
 TESTOBJ     := $(addprefix $(OBJDIR), $(TEST:.cpp=.o))
 RUN_TEST    := utils/run_tests.py
 TEST_OUTDIR := test_output/

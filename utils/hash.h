@@ -4,15 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/**
- * Get 64-bit FNV1 hash integer.
- *
- * \param data      text source data
- * \param nbytes    size of data
- *
- * \return 64-bit unsigned hash value.
- *
-**/
-uint64_t qhashfnv1_64(const void *data, size_t nbytes);
+uint32_t crc32(const void *buf, size_t size);
 
 #endif // HASH_H
