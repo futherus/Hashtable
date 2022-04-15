@@ -3,7 +3,7 @@
 
 #include "../src/Hashtable.h"
 #include "../utils/logs/logs.h"
-#include "../utils/hash.h"
+#include "../src/hash.h"
 #include "../utils/stats.h"
 #include "../utils/text.h"
 
@@ -12,7 +12,7 @@ static void print_ht_elem(FILE* stream, const ht_elem_t* elem)
     fprintf(stream, "%lu", *elem);
 }
 
-static uint64_t hash_test(const void*, size_t)
+static uint32_t hash_test(const void*)
 {
     return 1;
 }
@@ -34,13 +34,13 @@ int main()
         return err;
     }
 
-    err = text_print(&text, "hash_test1_text.txt");
-    if(err)
-    {
-        text_dtor(&text);
-        hashtable_dtor(&ht);
-        return err;
-    }
+    // err = text_print(&text, "hash_test1_text.txt");
+    // if(err)
+    // {
+    //     text_dtor(&text);
+    //     hashtable_dtor(&ht);
+    //     return err;
+    // }
 
     LOG$("Words amount: %lu\n", text.index_arr_size);
 
@@ -67,6 +67,8 @@ int main()
         
         memset(buffer, 0, KEY_SIZE);
     }
+
+    err = 0;
 
     LOG$("Inserted");
 

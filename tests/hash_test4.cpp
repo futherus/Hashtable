@@ -2,7 +2,7 @@
 
 #include "../src/Hashtable.h"
 #include "../utils/logs/logs.h"
-#include "../utils/hash.h"
+#include "../src/hash.h"
 #include "../utils/stats.h"
 #include "../utils/text.h"
 
@@ -11,12 +11,12 @@ static void print_ht_elem(FILE* stream, const ht_elem_t* elem)
     fprintf(stream, "%lu", *elem);
 }
 
-static uint64_t hash_test(const void* data, size_t len)
+static uint32_t hash_test(const void* data)
 {
-    uint64_t hash = 0;
-    for(size_t i = 0; i < len; i++)
+    uint32_t hash = 0;
+    for(size_t i = 0; i < KEY_SIZE; i++)
     {
-        hash += (size_t) *((const char*) data + i);
+        hash += (uint32_t) *((const char*) data + i);
     }
 
     return hash;
@@ -39,13 +39,13 @@ int main()
         return err;
     }
 
-    err = text_print(&text, "test4_text.txt");
-    if(err)
-    {
-        text_dtor(&text);
-        hashtable_dtor(&ht);
-        return err;
-    }
+    // err = text_print(&text, "hash_test4_text.txt");
+    // if(err)
+    // {
+    //     text_dtor(&text);
+    //     hashtable_dtor(&ht);
+    //     return err;
+    // }
 
     LOG$("Words amount: %lu\n", text.index_arr_size);
 
@@ -74,6 +74,8 @@ int main()
     }
 
     LOG$("Inserted");
+
+    err = 0;
 
     // FILE* stream = fopen("collisions4.csv", "w");
     // if(!stream)

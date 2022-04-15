@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "../utils/logs/logs.h"
 #include "Hashtable.h"
 
 #define ASSERT(CONDITION__, ERROR__)                                                  \
@@ -16,7 +15,7 @@
         }                                                                             \
     } while(0)                                                                        \
 
-int hashtable_ctor(Hashtable* tbl, size_t size, uint64_t (*hash_func)(const void* data, size_t len))
+int hashtable_ctor(Hashtable* tbl, size_t size, uint32_t (*hash_func)(const void* data))
 {
     assert(tbl && hash_func);
     assert(size > 0);
@@ -73,7 +72,7 @@ int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
     assert(tbl->hash_func && tbl->size);
 
     __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
-    uint64_t hash = tbl->hash_func(key, KEY_SIZE);
+    uint32_t hash = tbl->hash_func(key);
 
     List* list = &tbl->data[hash % tbl->size];
     list_elem_t tmp = {};
@@ -103,7 +102,7 @@ int hashtable_delete(Hashtable* tbl, const char* key)
     assert(tbl->hash_func && tbl->size);
 
     __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
-    uint64_t hash = tbl->hash_func(key, KEY_SIZE);
+    uint32_t hash = tbl->hash_func(key);
 
     List* list = &tbl->data[hash % tbl->size];
     list_elem_t tmp = {};
@@ -129,7 +128,7 @@ int hashtable_find(Hashtable* tbl, const char* key, ht_elem_t* retvalue)
     assert(tbl->hash_func && tbl->size);
 
     __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
-    uint64_t hash = tbl->hash_func(key, KEY_SIZE);
+    uint32_t hash = tbl->hash_func(key);
 
     List* list = &tbl->data[hash % tbl->size];
     list_elem_t tmp = {};

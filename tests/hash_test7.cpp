@@ -11,17 +11,12 @@ static void print_ht_elem(FILE* stream, const ht_elem_t* elem)
     fprintf(stream, "%lu", *elem);
 }
 
-static uint32_t hash_test(const void* data)
-{
-    return (uint32_t) strlen((const char*) data);
-}
-
 int main()
 {
-    logs_init("hash_test3.html");
+    logs_init("hash_test7.html");
 
     Hashtable ht = {};
-    int err = hashtable_ctor(&ht, 256, &hash_test);
+    int err = hashtable_ctor(&ht, 256, &crc32);
     if(err)
         return err;
 
@@ -33,7 +28,7 @@ int main()
         return err;
     }
 
-    // err = text_print(&text, "hash_test3_text.txt");
+    // err = text_print(&text, "hash_test7_text.txt");
     // if(err)
     // {
     //     text_dtor(&text);
@@ -65,13 +60,13 @@ int main()
         LOG$("Iteration: %lu, %s (%lu), %d", iter, buffer, text.index_arr[iter].size, err);
         
         memset(buffer, 0, KEY_SIZE);
-    }
+    }    
+    
+    err = 0;
 
     LOG$("Inserted");
 
-    err = 0;
-
-    // FILE* stream = fopen("collisions3.csv", "w");
+    // FILE* stream = fopen("collisions7.csv", "w");
     // if(!stream)
     //     return 1;
     // stats_collisions(&ht, stream);

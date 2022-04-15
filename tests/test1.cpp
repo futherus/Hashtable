@@ -3,7 +3,7 @@
 
 #include "../src/Hashtable.h"
 #include "../utils/logs/logs.h"
-#include "../utils/hash.h"
+#include "../src/hash.h"
 #include "../utils/stats.h"
 #include "../utils/text.h"
 
@@ -12,23 +12,12 @@ static void print_ht_elem(FILE* stream, const ht_elem_t* elem)
     fprintf(stream, "%lu", *elem);
 }
 
-static uint64_t hash_test(const void* data, size_t len)
-{
-    uint64_t hash = 0;
-    for(size_t i = 0; i < len; i++)
-    {
-        hash += (size_t) *((const char*) data + i);
-    }
-
-    return hash;
-}
-
 int main()
 {
     logs_init("test1.html");
 
     Hashtable ht = {};
-    int err = hashtable_ctor(&ht, 256, &hash_test);
+    int err = hashtable_ctor(&ht, 256, &crc32);
     if(err)
         return err;
 
@@ -89,6 +78,8 @@ int main()
         
         memset(buffer, 0, KEY_SIZE);
     }
+
+    err = 0;
 
     // FILE* stream = fopen("collisions1.csv", "w");
     // if(!stream)
