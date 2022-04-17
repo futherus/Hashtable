@@ -16,7 +16,7 @@
         }                                                                             \
     } while(0)                                                                        \
 
-int hashtable_ctor(Hashtable* tbl, size_t size, uint32_t (*hash_func)(const void* data, size_t len))
+int hashtable_ctor(Hashtable* tbl, size_t size, uint32_t (*hash_func)(const void* key))
 {
     assert(tbl && hash_func);
     assert(size > 0);
@@ -70,7 +70,7 @@ int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
     assert(tbl && key);
     assert(tbl->hash_func && tbl->size);
 
-    uint32_t hash = tbl->hash_func(key, KEY_SIZE);
+    uint32_t hash = tbl->hash_func(key);
 
     List* list = &tbl->data[hash % tbl->size];
     list_elem_t tmp = {};
@@ -99,7 +99,7 @@ int hashtable_delete(Hashtable* tbl, const char* key)
     assert(tbl && key);
     assert(tbl->hash_func && tbl->size);
 
-    uint32_t hash = tbl->hash_func(key, KEY_SIZE);
+    uint32_t hash = tbl->hash_func(key);
 
     List* list = &tbl->data[hash % tbl->size];
     list_elem_t tmp = {};
@@ -113,7 +113,8 @@ int hashtable_delete(Hashtable* tbl, const char* key)
     if(tmp_pos == LIST_HEADER_POS)
         return HASHTABLE_NOTFOUND;
     
-    ASSERT(!list_delete(list, tmp_pos), HASHTABLE_BAD_LIST);
+    tmp_pos = list_delete(list, tmp_pos);
+    ASSERT(tmp_pos >= LIST_HEADER_POS || tmp_pos == LIST_EMPTY, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
 
     return HASHTABLE_NOERR;
 }
@@ -123,7 +124,7 @@ int hashtable_find(Hashtable* tbl, const char* key, ht_elem_t* retvalue)
     assert(tbl && key && retvalue);
     assert(tbl->hash_func && tbl->size);
 
-    uint32_t hash = tbl->hash_func(key, KEY_SIZE);
+    uint32_t hash = tbl->hash_func(key);
 
     List* list = &tbl->data[hash % tbl->size];
     list_elem_t tmp = {};

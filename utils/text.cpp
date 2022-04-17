@@ -37,7 +37,7 @@ static void set_index_arr(char* buffer, Index* index_arr, size_t index_arr_size)
         }
 
         index_arr[line_num].begin = first_symbol;
-        index_arr[line_num].size  = last_symbol + 1 - first_symbol;
+        index_arr[line_num].size  = (size_t) (last_symbol + 1 - first_symbol);
 
         first_symbol = nullptr;
         last_symbol  = nullptr;
@@ -94,7 +94,7 @@ static int create_buffer(char** dst_buffer, size_t* dst_buffer_size, const char*
     if(stat(file_name, &file_stat) == -1)
         return 1;
 
-    size_t file_size = file_stat.st_size;
+    size_t file_size = (size_t) file_stat.st_size;
 
     LOG$("calloc");
     char* buffer = nullptr;
