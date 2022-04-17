@@ -106,16 +106,16 @@ CRC32 on assembler:
 <img src = "resources/CRC32/opt_stat_.png">
 
 CRC32 on intrinsics:
-<img src = "resources/CRC32/report.png">
+<img src = "resources/CRC32/report_.png">
 
 CRC32 on assembler:
-<img src = "resources/CRC32/opt_report.png">
+<img src = "resources/CRC32/opt_report_.png">
 
 CRC32 on intrinsics:
-<img src = "resources/CRC32/crc32.png">
+<img src = "resources/CRC32/crc32_.png">
 
 CRC32 on assembler:
-<img src = "resources/CRC32/opt_crc32.png">
+<img src = "resources/CRC32/opt_crc32_.png">
 
 Assembler file is not as flexible as .cpp file, therefore main implementation will take intrinsic implementation.
 
