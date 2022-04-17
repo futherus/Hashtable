@@ -6,14 +6,14 @@
 #include "../utils/stats.h"
 #include "../utils/text.h"
 
-static void print_ht_elem(FILE* stream, const ht_elem_t* elem)
-{
-    fprintf(stream, "%lu", *elem);
-}
+// static void print_ht_elem(FILE* stream, const ht_elem_t* elem)
+// {
+//     fprintf(stream, "%lu", *elem);
+// }
 
 static uint32_t hash_test(const void* data)
 {
-    return *((const char*) data);
+    return *((const unsigned char*) data);
 }
 
 int main()
@@ -21,12 +21,12 @@ int main()
     logs_init("hash_test2.html");
 
     Hashtable ht = {};
-    int err = hashtable_ctor(&ht, 256, &hash_test);
+    int err = hashtable_ctor(&ht, 8192, &hash_test);
     if(err)
         return err;
 
     Text text = {};
-    err = text_ctor(&text, "../tests/test_text.txt");
+    err = text_ctor(&text, "../tests/test_collisions.txt");
     if(err)
     {
         hashtable_dtor(&ht);
@@ -41,7 +41,7 @@ int main()
     //     return err;
     // }
 
-    LOG$("Words amount: %lu\n", text.index_arr_size);
+    LOG$("Words amount: %lu", text.index_arr_size);
 
     char buffer[KEY_SIZE] = {};
 
@@ -62,7 +62,8 @@ int main()
             return err;
         }
 
-        LOG$("Iteration: %lu, %s (%lu), %d", iter, buffer, text.index_arr[iter].size, err);
+        if(iter % 10000 == 0)
+            LOG$("Iteration: %lu, %d", iter, err);
         
         memset(buffer, 0, KEY_SIZE);
     }
@@ -71,11 +72,11 @@ int main()
 
     LOG$("Inserted");
 
-    // FILE* stream = fopen("collisions2.csv", "w");
-    // if(!stream)
-    //     return 1;
-    // stats_collisions(&ht, stream);
-    // err = fclose(stream);
+    FILE* stream = fopen("collisions2.csv", "w");
+    if(!stream)
+        return 1;
+    stats_collisions(&ht, stream);
+    err = fclose(stream);
 
     LOG$("Destructors");
     hashtable_dtor(&ht);

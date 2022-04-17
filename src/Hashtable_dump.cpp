@@ -20,9 +20,10 @@ static const char HFILL[] = "---------------------------------------------------
 
 static void print_list_elem(FILE* stream, const list_elem_t* elem)
 {
-    fprintf(stream, "`KEY_not_impl`~`"); //, elem->key);
-    PRINT_ELEM(stream, &elem->obj);
-    fprintf(stream, "`");
+    //fprintf(stream, "`KEY_not_impl`~`"); //, elem->key);
+    //PRINT_ELEM(stream, &elem->obj);
+    bool is_aligned = !(((uint64_t) &elem->key) % KEY_SIZE);
+    fprintf(stream, "`%p (%d)`", &elem->key, is_aligned);
 }
 
 static void print_list(List* list, FILE* stream)
@@ -71,7 +72,9 @@ void hashtable_dump(Hashtable* tbl, const char* msg)
 
     for(size_t iter = 0; iter < tbl->size; iter++)
     {
-        PRINT("| 0x%.6lx (%6d) ->", iter, tbl->data[iter].size);
+        bool is_aligned = (((uint64_t) tbl->data[iter].node_arr ) % KEY_SIZE) == 0;
+
+        PRINT("| [%p] $aligned=%d:align=%lu:size=%lu$ 0x%.6lx (%6d) ->", tbl->data[iter].node_arr, is_aligned, alignof(*tbl->data[iter].node_arr), sizeof(*tbl->data[iter].node_arr), iter, tbl->data[iter].size);
         print_list(&tbl->data[iter], stream);
     }
     

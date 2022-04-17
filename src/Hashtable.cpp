@@ -74,12 +74,14 @@ int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
     __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
     uint32_t hash = tbl->hash_func(key);
 
-    List* list = &tbl->data[hash % tbl->size];
-    list_elem_t tmp = {};
-    int tmp_pos = list_front(list, &tmp);
+    List* list = &tbl->data[hash % tbl->size];  // change to shift?
+    int tmp_pos = list->node_arr[LIST_HEADER_POS].next;
     
-    while(tmp_pos > LIST_HEADER_POS && _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, tmp.key)) != -1)
-        tmp_pos = list_next(list, tmp_pos, &tmp);
+    while(tmp_pos > LIST_HEADER_POS &&
+          _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, list->node_arr[tmp_pos].data.key)) != -1)
+    {
+        tmp_pos = list->node_arr[tmp_pos].next;
+    }
 
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
 
@@ -104,12 +106,14 @@ int hashtable_delete(Hashtable* tbl, const char* key)
     __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
     uint32_t hash = tbl->hash_func(key);
 
-    List* list = &tbl->data[hash % tbl->size];
-    list_elem_t tmp = {};
-    int tmp_pos = list_front(list, &tmp);
-
-    while(tmp_pos > LIST_HEADER_POS && _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, tmp.key)) != -1)
-        tmp_pos = list_next(list, tmp_pos, &tmp);
+    List* list = &tbl->data[hash % tbl->size];  // change to shift?
+    int tmp_pos = list->node_arr[LIST_HEADER_POS].next;
+    
+    while(tmp_pos > LIST_HEADER_POS &&
+          _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, list->node_arr[tmp_pos].data.key)) != -1)
+    {
+        tmp_pos = list->node_arr[tmp_pos].next;
+    }
 
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
 
@@ -117,7 +121,7 @@ int hashtable_delete(Hashtable* tbl, const char* key)
         return HASHTABLE_NOTFOUND;
 
     tmp_pos = list_delete(list, tmp_pos);
-    ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST);
+    ASSERT(tmp_pos >= LIST_HEADER_POS || tmp_pos == LIST_EMPTY, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
 
     return HASHTABLE_NOERR;
 }
@@ -130,19 +134,21 @@ int hashtable_find(Hashtable* tbl, const char* key, ht_elem_t* retvalue)
     __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
     uint32_t hash = tbl->hash_func(key);
 
-    List* list = &tbl->data[hash % tbl->size];
-    list_elem_t tmp = {};
-    int tmp_pos = list_front(list, &tmp);
-
-    while(tmp_pos > LIST_HEADER_POS && _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, tmp.key)) != -1)
-        tmp_pos = list_next(list, tmp_pos, &tmp);
+    List* list = &tbl->data[hash % tbl->size];  // change to shift?
+    int tmp_pos = list->node_arr[LIST_HEADER_POS].next;
+    
+    while(tmp_pos > LIST_HEADER_POS &&
+          _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, _mm256_load_si256(&list->node_arr[tmp_pos].data.key))) != -1)
+    {
+        tmp_pos = list->node_arr[tmp_pos].next;
+    }
 
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
 
     if(tmp_pos == LIST_HEADER_POS)
         return HASHTABLE_NOTFOUND;
     
-    *retvalue = tmp.obj;
+    *retvalue = list->node_arr[tmp_pos].data.obj;
 
     return HASHTABLE_NOERR;
 }

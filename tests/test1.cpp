@@ -7,10 +7,10 @@
 #include "../utils/stats.h"
 #include "../utils/text.h"
 
-static void print_ht_elem(FILE* stream, const ht_elem_t* elem)
-{
-    fprintf(stream, "%lu", *elem);
-}
+// static void print_ht_elem(FILE* stream, const ht_elem_t* elem)
+// {
+//     fprintf(stream, "%lu", *elem);
+// }
 
 int main()
 {
@@ -49,24 +49,18 @@ int main()
 
             return err;
         }
-
-        LOG$("Insertion: %lu, %s (%lu), %d", iter, buffer, text.index_arr[iter].size, err);
         
         memset(buffer, 0, KEY_SIZE);
     }
 
     LOG$("Inserted");
 
-    for(size_t iter = 0; iter < text.index_arr_size; iter++)
-    {
-        size_t size = text.index_arr[iter].size;
-        if(size > KEY_SIZE)
-            size = KEY_SIZE;
-        
-        memcpy(buffer, text.index_arr[iter].begin, size);
+    memcpy(buffer, "FINDTHISWORD", sizeof("FINDTHISWORD"));
+    ht_elem_t val = 0;
 
-        err = hashtable_delete(&ht, buffer);
-        LOG$("Deletion: %lu, %s (%lu), %d", iter, buffer, text.index_arr[iter].size, err);
+    for(size_t iter = 0; iter < 100000000; iter++)
+    {
+        err = hashtable_find(&ht, buffer, &val);
         if(err && err != HASHTABLE_NOTFOUND)
         {
             hashtable_dtor(&ht);
@@ -74,9 +68,6 @@ int main()
 
             return err;
         }
-
-        
-        memset(buffer, 0, KEY_SIZE);
     }
 
     err = 0;
