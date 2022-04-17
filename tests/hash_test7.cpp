@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <immintrin.h>
 
 #include "../src/Hashtable.h"
 #include "../utils/logs/logs.h"
@@ -14,8 +13,9 @@
 
 int main()
 {
-    logs_init("test1.html");
-
+    logs_init("hash_test7.html");
+    // hashtable_dump_init(logs_get(), nullptr);
+    
     Hashtable ht = {};
     int err = hashtable_ctor(&ht, 256, &qhashfnv1_64);
     if(err)
@@ -29,9 +29,21 @@ int main()
         return err;
     }
 
+    // err = text_print(&text, "hash_test7_text.txt");
+    // if(err)
+    // {
+    //     text_dtor(&text);
+    //     hashtable_dtor(&ht);
+    //     return err;
+    // }
+
     LOG$("Words amount: %lu\n", text.index_arr_size);
 
-    char buffer[KEY_SIZE] = {};
+    struct  // __attribute__((packed))
+    {
+        char buffer[KEY_SIZE] = {};
+        char dummy = 0;
+    } buf;
 
     for(size_t iter = 0; iter < text.index_arr_size; iter++)
     {
@@ -39,9 +51,9 @@ int main()
         if(size > KEY_SIZE)
             size = KEY_SIZE;
         
-        memcpy(buffer, text.index_arr[iter].begin, size);
+        memcpy(buf.buffer, text.index_arr[iter].begin, size);
 
-        err = hashtable_insert(&ht, buffer, iter);
+        err = hashtable_insert(&ht, buf.buffer, iter);
         if(err && err != HASHTABLE_ALREADY_INSERTED)
         {
             hashtable_dtor(&ht);
@@ -49,30 +61,19 @@ int main()
 
             return err;
         }
+
+        LOG$("Iteration: %lu, %d", iter, err);
         
-        memset(buffer, 0, KEY_SIZE);
-    }
+        memset(buf.buffer, 0, KEY_SIZE);
+    }    
+    
+    err = 0;
 
     LOG$("Inserted");
 
-    memcpy(buffer, "FINDTHISWORD", sizeof("FINDTHISWORD"));
-    ht_elem_t val = 0;
+    // hashtable_dump(&ht);
 
-    for(size_t iter = 0; iter < 100000000; iter++)
-    {
-        err = hashtable_find(&ht, buffer, &val);
-        if(err && err != HASHTABLE_NOTFOUND)
-        {
-            hashtable_dtor(&ht);
-            text_dtor(&text);
-
-            return err;
-        }
-    }
-
-    err = 0;
-
-    // FILE* stream = fopen("collisions1.csv", "w");
+    // FILE* stream = fopen("collisions7.csv", "w");
     // if(!stream)
     //     return 1;
     // stats_collisions(&ht, stream);
@@ -82,6 +83,5 @@ int main()
     hashtable_dtor(&ht);
     text_dtor(&text);
 
-    LOG$("End of main");
     return err;
 }

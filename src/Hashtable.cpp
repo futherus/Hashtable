@@ -80,7 +80,7 @@ int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
     list_elem_t tmp = {};
     int tmp_pos = list_front(list, &tmp);
     
-    while(tmp_pos > LIST_HEADER_POS && strcmp(key, tmp.key) != 0)
+    while(tmp_pos > LIST_HEADER_POS && memcmp(key, tmp.key, len) != 0)
         tmp_pos = list_next(list, tmp_pos, &tmp);
 
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
@@ -113,7 +113,7 @@ int hashtable_delete(Hashtable* tbl, const char* key)
     list_elem_t tmp = {};
     int tmp_pos = list_front(list, &tmp);
 
-    while(tmp_pos > LIST_HEADER_POS && strcmp(key, tmp.key) != 0)
+    while(tmp_pos > LIST_HEADER_POS && memcmp(key, tmp.key, len) != 0)
         tmp_pos = list_next(list, tmp_pos, &tmp);
 
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
@@ -141,7 +141,7 @@ int hashtable_find(Hashtable* tbl, const char* key, ht_elem_t* retvalue)
     list_elem_t tmp = {};
     int tmp_pos = list_front(list, &tmp);
 
-    while(tmp_pos > LIST_HEADER_POS && strcmp(key, tmp.key) != 0)
+    while(tmp_pos > LIST_HEADER_POS && memcmp(key, tmp.key, len) != 0)
         tmp_pos = list_next(list, tmp_pos, &tmp);
 
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code

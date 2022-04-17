@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <immintrin.h>
 
 #include "../src/Hashtable.h"
 #include "../utils/logs/logs.h"
@@ -12,22 +11,35 @@
 //     fprintf(stream, "%lu", *elem);
 // }
 
+static uint64_t hash_test(const void* data, size_t)
+{
+    uint64_t hash = 0;
+    for(size_t i = 0; i < KEY_SIZE; i++)
+    {
+        hash += (uint64_t) *((const char*) data + i);
+    }
+
+    return hash;
+}
+
 int main()
 {
-    logs_init("test1.html");
+    logs_init("hash_test4.html");
 
     Hashtable ht = {};
-    int err = hashtable_ctor(&ht, 256, &qhashfnv1_64);
+    int err = hashtable_ctor(&ht, 256, &hash_test);
     if(err)
         return err;
 
     Text text = {};
-    err = text_ctor(&text, "../tests/test_text.txt");
-    if(err)
-    {
-        hashtable_dtor(&ht);
-        return err;
-    }
+
+    // err = text_print(&text, "hash_test4_text.txt");
+    // if(err)
+    // {
+    //     text_dtor(&text);
+    //     hashtable_dtor(&ht);
+    //     return err;
+    // }
 
     LOG$("Words amount: %lu\n", text.index_arr_size);
 
@@ -49,30 +61,17 @@ int main()
 
             return err;
         }
+
+        LOG$("Iteration: %lu, %d", iter, err);
         
         memset(buffer, 0, KEY_SIZE);
     }
 
     LOG$("Inserted");
 
-    memcpy(buffer, "FINDTHISWORD", sizeof("FINDTHISWORD"));
-    ht_elem_t val = 0;
-
-    for(size_t iter = 0; iter < 100000000; iter++)
-    {
-        err = hashtable_find(&ht, buffer, &val);
-        if(err && err != HASHTABLE_NOTFOUND)
-        {
-            hashtable_dtor(&ht);
-            text_dtor(&text);
-
-            return err;
-        }
-    }
-
     err = 0;
 
-    // FILE* stream = fopen("collisions1.csv", "w");
+    // FILE* stream = fopen("collisions4.csv", "w");
     // if(!stream)
     //     return 1;
     // stats_collisions(&ht, stream);
@@ -82,6 +81,5 @@ int main()
     hashtable_dtor(&ht);
     text_dtor(&text);
 
-    LOG$("End of main");
     return err;
 }
