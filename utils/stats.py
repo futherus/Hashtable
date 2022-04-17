@@ -23,7 +23,7 @@ axs[0][1].set_title('length'    )
 axs[1][0].set_title('sum'       )
 axs[1][1].set_title('ROR'       )
 axs[2][0].set_title('ROL'       )
-axs[2][1].set_title('crc32'     )
+axs[2][1].set_title('CRC32'     )
 
 plt.gcf().set_size_inches(10, 10)
 

@@ -58,7 +58,7 @@ That way compiler generates simple ariphmetic operations instead of `memcpy()` c
 
 `memcmp()` converted to 2 `mov` and 2 `xor`, so it takes lower percent of function execution.
 
-Another edge is hash function. 64-bit hash is overkill for hashtable, so **crc32** hash was taken.
+Another edge is hash function. 64-bit hash is overkill for hashtable, so **CRC32** hash was taken.
 
 <img src = "resources/first_opt/stat_.png">
 
@@ -66,18 +66,18 @@ From `perf stat` we see 20.3 s. Execution time dropped by 47%. We reduced amount
 
 <img src = "resources/first_opt/report_.png">
 
-As we can see from report, `hashtable_find()`, `crc32()` and `list_next()` are hottest functions.
+As we can see from report, `hashtable_find()`, `CRC32()` and `list_next()` are hottest functions.
 
 ---
 ## AVX optimization
 
-This part introduces avx optimization in `hashtable_find()` and `crc32()` and inlining of `list_next()`.
+This part introduces avx optimization in `hashtable_find()` and `CRC32()` and inlining of `list_next()`.
 
 <img src = "resources/AVX_opt/code_.png">
 
 We used intrinsics to compare 32-byte key as a whole, replacing `memcmp()`.
 
-`crc32()` was rewritten using processor intrinsics for **crc32** hash.
+`CRC32()` was rewritten using processor intrinsics for **CRC32** hash.
 
 <img src = "resources/AVX_opt/find_.png">
 
@@ -86,11 +86,38 @@ After this replacements almost all function execution is hanged on `vcmpeqb` and
 
 <img src = "resources/AVX_opt/report_.png">
 
-**crc32** algorithm takes 0.93% of execution. However, we may use additional optimization because our experimental layout provides ~50 collisions.
+**CRC32** algorithm takes 0.93% of execution. However, we may use additional optimization because our experimental layout provides ~50 collisions.
 
 <img src = "resources/AVX_opt/stat_.png">
 
 Execution time reduced by 37%.
+
+---
+## CRC32 optimization
+
+This part describes attempt of `CRC32` optimization.
+
+Intrinsic implementation of CRC32 is equal to assembler implementation. To compare, assembler implementation without loop and intrinsic implementation with loop are given.
+
+CRC32 on intrinsics:
+<img src = "resources/CRC32/stat_.png">
+
+CRC32 on assembler:
+<img src = "resources/CRC32/opt_stat_.png">
+
+CRC32 on intrinsics:
+<img src = "resources/CRC32/report.png">
+
+CRC32 on assembler:
+<img src = "resources/CRC32/opt_report.png">
+
+CRC32 on intrinsics:
+<img src = "resources/CRC32/crc32.png">
+
+CRC32 on assembler:
+<img src = "resources/CRC32/opt_crc32.png">
+
+Assembler file is not as flexible as .cpp file, therefore main implementation will take intrinsic implementation.
 
 # Hash research
 
@@ -104,11 +131,9 @@ Collection of english dictionaries is taken as input for hashtable inserting (57
 2) **'first byte`** - returns first byte
 3) **'length'**        - returns object length
 4) **'sum'**           - returns sum of byte elements
-5) **'ROR'**           - h_0 = data[0], h_i = ror(h)
- xor(data[i])
-6) **'ROL'**           - h_0 = data[0], h_i = rol(h)
- xor(data[i])
-7) **crc32**
+5) **'ROR'**           - h_0 = data[0], h_i = ror(h) xor(data[i])
+6) **'ROL'**           - h_0 = data[0], h_i = rol(h) xor(data[i])
+7) **CRC32**
 
 <img src = "resources/colls.png" width = 350 style="display: block; margin-left: auto; margin-right: auto;">
 
