@@ -92,6 +92,20 @@ After this replacements almost all function execution is hanged on `vcmpeqb` and
 
 Execution time reduced by 37%.
 
+## Inline assembly
+
+This part describes attempt of *inline assembly* optimization.
+
+It's expected that intrinsics will show equal (if not better) performance comparing with inline assembly. Let's check it.
+
+AVX:
+<img src = "resources/inline/avx_stat_.png">
+
+Inline:
+<img src = "resources/inline/inline_stat_.png">
+
+For better results `perf` was used with `-r 10` argument for evaluating average on 10 times. As we can see intrinsics have a little edge to inline assembly due to compiler optimizations. Code readability and portability is much higher when using intrinsics, so inline assembly is worse in both aspects.
+
 ---
 ## CRC32 optimization
 
@@ -118,6 +132,10 @@ CRC32 on assembler:
 <img src = "resources/CRC32/opt_crc32_.png">
 
 Assembler file is not as flexible as .cpp file, therefore main implementation will take intrinsic implementation.
+
+## Results
+
+In this conditions all optimizations provided **3x** speed-up. Code Conversion Efficiency = 3/20 * 1000 = 150.
 
 # Hash research
 
