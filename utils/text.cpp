@@ -163,6 +163,8 @@ int text_ctor(Text* text, const char* file_name)
         return 1;
     }
 
+    LOG$("Finalizing");
+
     text->buffer         = buffer;
     text->index_arr      = index_arr;
     text->buffer_size    = buffer_size;

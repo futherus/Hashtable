@@ -22,7 +22,7 @@ int main()
         return err;
 
     Text text = {};
-    err = text_ctor(&text, "../tests/test_collisions.txt");
+    err = text_ctor(&text, "../tests/test_text.txt");
     if(err)
     {
         hashtable_dtor(&ht);
@@ -74,7 +74,7 @@ int main()
 
     // hashtable_dump(&ht);
 
-    FILE* stream = fopen("crc32.csv", "w");
+    FILE* stream = fopen("collisions7.csv", "w");
     if(!stream)
         return 1;
     stats_collisions(&ht, stream);

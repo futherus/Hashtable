@@ -71,18 +71,46 @@ int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
     assert(tbl && key);
     assert(tbl->hash_func && tbl->size);
 
-    __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
     uint32_t hash = tbl->hash_func(key);
 
-    List* list = &tbl->data[hash % tbl->size];  // change to shift?
-    int tmp_pos = list->node_arr[LIST_HEADER_POS].next;
+    List* list  = &tbl->data[hash % tbl->size];  // change to shift?
+    int tmp_pos = LIST_HEADER_POS;    
+    int mask    = 0;
+    char* ptr   = nullptr;
     
-    while(tmp_pos > LIST_HEADER_POS &&
-          _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, list->node_arr[tmp_pos].data.key)) != -1)
+    // __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
+    __m256i avx_key;
+    asm
+    (
+        "vlddqu %[key], %[avx_key]\n\t"
+        :[avx_key] "=x"  (avx_key)
+        :[key]     "m"   (*key)
+    );
+    
+    // do 
+    // {
+    //     tmp_pos = list->node_arr[tmp_pos].next;
+    //     mask    = _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, _mm256_load_si256(&list->node_arr[tmp_pos].data.key)));
+    // }
+    // while(tmp_pos > LIST_HEADER_POS && mask != -1);
+    do
     {
         tmp_pos = list->node_arr[tmp_pos].next;
-    }
+        ptr = (char*) &list->node_arr[tmp_pos].data.key;
 
+        asm
+        (
+            "vmovdqa %[key], %%ymm0\n\t"
+            "vpcmpeqb %[avx_key], %%ymm0, %%ymm0\n\t"
+            "vpmovmskb %%ymm0, %[mask]\n\t"
+            :[mask]    "=r" (mask)
+            :[avx_key] "x"  (avx_key),
+             [key]     "m"  (*ptr)
+            : "ymm0"
+        );
+    }
+    while(tmp_pos > LIST_HEADER_POS && mask != -1);
+    
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
 
     if(tmp_pos != LIST_HEADER_POS)
@@ -90,7 +118,14 @@ int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
     
     list_elem_t elem = {};
     elem.obj = value;
-    elem.key = avx_key;
+
+    // elem.key = avx_key;
+    asm
+    (
+        "vmovdqu %[avx_key], %[key]\n\t"
+        :[key]     "=m" (elem.key)
+        :[avx_key] "x"  (avx_key)
+    );
 
     tmp_pos = list_push_back(list, elem);
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST);
@@ -103,18 +138,46 @@ int hashtable_delete(Hashtable* tbl, const char* key)
     assert(tbl && key);
     assert(tbl->hash_func && tbl->size);
 
-    __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
     uint32_t hash = tbl->hash_func(key);
 
-    List* list = &tbl->data[hash % tbl->size];  // change to shift?
+    List* list  = &tbl->data[hash % tbl->size];  // change to shift?
     int tmp_pos = list->node_arr[LIST_HEADER_POS].next;
-    
-    while(tmp_pos > LIST_HEADER_POS &&
-          _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, list->node_arr[tmp_pos].data.key)) != -1)
+    int mask    = 0;
+    char* ptr   = nullptr;
+
+    // __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
+    __m256i avx_key;
+    asm
+    (
+        "vlddqu %[key], %[avx_key]\n\t"
+        :[avx_key] "=x"  (avx_key)
+        :[key]     "m"   (*key)
+    );
+
+    // do 
+    // {
+    //     tmp_pos = list->node_arr[tmp_pos].next;
+    //     mask    = _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, _mm256_load_si256(&list->node_arr[tmp_pos].data.key)));
+    // }
+    // while(tmp_pos > LIST_HEADER_POS && mask != -1);
+    do
     {
         tmp_pos = list->node_arr[tmp_pos].next;
-    }
+        ptr = (char*) &list->node_arr[tmp_pos].data.key;
 
+        asm
+        (
+            "vmovdqa %[key], %%ymm0\n\t"
+            "vpcmpeqb %[avx_key], %%ymm0, %%ymm0\n\t"
+            "vpmovmskb %%ymm0, %[mask]\n\t"
+            :[mask]    "=r" (mask)
+            :[avx_key] "x"  (avx_key),
+             [key]     "m"  (*ptr)
+            : "ymm0"
+        );
+    }
+    while(tmp_pos > LIST_HEADER_POS && mask != -1);
+    
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
 
     if(tmp_pos == LIST_HEADER_POS)
@@ -131,18 +194,46 @@ int hashtable_find(Hashtable* tbl, const char* key, ht_elem_t* retvalue)
     assert(tbl && key && retvalue);
     assert(tbl->hash_func && tbl->size);
 
-    __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
     uint32_t hash = tbl->hash_func(key);
 
     List* list = &tbl->data[hash % tbl->size];  // change to shift?
     int tmp_pos = list->node_arr[LIST_HEADER_POS].next;
-    
-    while(tmp_pos > LIST_HEADER_POS &&
-          _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, _mm256_load_si256(&list->node_arr[tmp_pos].data.key))) != -1)
+    int mask    = 0;
+    char* ptr   = nullptr;
+
+    // __m256i avx_key = _mm256_lddqu_si256((const __m256i*) key);
+    __m256i avx_key;
+    asm
+    (
+        "vlddqu %[key], %[avx_key]\n\t"
+        :[avx_key] "=x"  (avx_key)
+        :[key]     "m"   (*key)
+    );
+
+    // do 
+    // {
+    //     tmp_pos = list->node_arr[tmp_pos].next;
+    //     mask    = _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, _mm256_load_si256(&list->node_arr[tmp_pos].data.key)));
+    // }
+    // while(tmp_pos > LIST_HEADER_POS && mask != -1);
+    do
     {
         tmp_pos = list->node_arr[tmp_pos].next;
-    }
+        ptr = (char*) &list->node_arr[tmp_pos].data.key;
 
+        asm
+        (
+            "vmovdqa %[key], %%ymm0\n\t"
+            "vpcmpeqb %[avx_key], %%ymm0, %%ymm0\n\t"
+            "vpmovmskb %%ymm0, %[mask]\n\t"
+            :[mask]    "=r" (mask)
+            :[avx_key] "x"  (avx_key),
+             [key]     "m"  (*ptr)
+            : "ymm0"
+        );
+    }
+    while(tmp_pos > LIST_HEADER_POS && mask != -1);
+    
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
 
     if(tmp_pos == LIST_HEADER_POS)

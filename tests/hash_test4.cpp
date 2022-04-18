@@ -32,6 +32,12 @@ int main()
         return err;
 
     Text text = {};
+    err = text_ctor(&text, "../tests/test_text.txt");
+    if(err)
+    {
+        hashtable_dtor(&ht);
+        return err;
+    }
 
     // err = text_print(&text, "hash_test4_text.txt");
     // if(err)

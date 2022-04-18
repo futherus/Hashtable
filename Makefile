@@ -63,8 +63,8 @@ BINDIR := $(CURDIR)/bin/
 TARGET := $(BINDIR)test_ht
 VPATH  := tests/ utils/ utils/logs
 
-TEST        := hash_test2.cpp hash_test3.cpp hash_test4.cpp hash_test5.cpp hash_test6.cpp hash_test7.cpp \
-			   main.cpp test1.cpp crc32_test.cpp opt_crc32_test.cpp
+TEST        := hash_test1.cpp hash_test2.cpp hash_test3.cpp hash_test4.cpp hash_test5.cpp hash_test6.cpp hash_test7.cpp \
+			   main.cpp test1.cpp crc32_test.cpp # opt_crc32_test.cpp
 TESTOBJ     := $(addprefix $(OBJDIR), $(TEST:.cpp=.o))
 RUN_TEST    := utils/run_tests.py
 TEST_OUTDIR := test_output/

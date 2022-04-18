@@ -4,12 +4,15 @@
 #include <stdio.h>
 
 #include "../utils/text.h"
+#include "../utils/logs/logs.h"
 
 extern "C" uint32_t hash_crc32(void* data);
 
 int main()
 {
     Text text = {};
+
+    logs_init("opt_crc32_test.html");
     
     int err = text_ctor(&text, "../tests/test_collisions.txt");
     if(err)
@@ -31,5 +34,5 @@ int main()
         out += hash_crc32(buffer);
     }
 
-    printf("%d\n", out);
+    return 0;
 }

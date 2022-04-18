@@ -3,15 +3,19 @@
 #include <stdio.h>
 
 #include "../utils/text.h"
+#include "../utils/logs/logs.h"
 #include "../src/hash.h"
 
 int main()
 {
     Text text = {};
+
+    logs_init("crc32_test.html");
     
     int err = text_ctor(&text, "../tests/test_collisions.txt");
     if(err)
     {
+        printf("Error: %d\n", err);
         return err;
     }
 
@@ -29,5 +33,5 @@ int main()
         out += crc32(buffer);
     }
 
-    printf("crc32: %d\n", out);
+    return 0;
 }
