@@ -78,7 +78,7 @@ int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
     int tmp_pos = list->node_arr[LIST_HEADER_POS].next;
     
     while(tmp_pos > LIST_HEADER_POS &&
-          _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, list->node_arr[tmp_pos].data.key)) != -1)
+          _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, _mm256_load_si256(&list->node_arr[tmp_pos].data.key))) != -1)
     {
         tmp_pos = list->node_arr[tmp_pos].next;
     }
@@ -110,7 +110,7 @@ int hashtable_delete(Hashtable* tbl, const char* key)
     int tmp_pos = list->node_arr[LIST_HEADER_POS].next;
     
     while(tmp_pos > LIST_HEADER_POS &&
-          _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, list->node_arr[tmp_pos].data.key)) != -1)
+          _mm256_movemask_epi8(_mm256_cmpeq_epi8(avx_key, _mm256_load_si256(&list->node_arr[tmp_pos].data.key))) != -1)
     {
         tmp_pos = list->node_arr[tmp_pos].next;
     }
