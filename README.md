@@ -44,9 +44,9 @@ Third hottest function with 7.7% is `list_next()`, so it's worth considering for
 The most loaded part of `hashtable_find()` is `memcmp()` call, as expected.
 
 ---
-## First optimization
+## New hash function and `memcmp()` optimization
 
-First optimization introduces `memcmp()` substitution and new hash function.
+First optimization introduces `memcmp()` substitution using 32-byte length limitation and new hash function.
 
 <img src = "resources/first_opt/code_.png">
 
@@ -80,7 +80,6 @@ We used intrinsics to compare 32-byte key as a whole, replacing `memcmp()`.
 `CRC32()` was rewritten using processor intrinsics for **CRC32** hash.
 
 <img src = "resources/AVX_opt/find_.png">
-
 
 After this replacements almost all function execution is hanged on `vcmpeqb` and `vpmovmskb`. Good result.
 
