@@ -6,7 +6,7 @@ from matplotlib.pyplot import figure
 data = []
 for i in range(2, 8):
     data.append(pd.read_csv('../resources/collisions/collisions' + str(i) + '.csv', sep=',')['collisions'])
-print((data[0]))
+
 xspc = np.linspace(0, 8191, 8192)
 
 fig, axs = plt.subplots(3, 2)
@@ -36,4 +36,4 @@ plt.gcf().set_size_inches(10, 10)
 #     hspace =0.4
 # )
 
-plt.savefig('../resources/colls.png')
+plt.savefig('../resources/colls.pdf')
