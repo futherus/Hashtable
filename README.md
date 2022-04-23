@@ -46,13 +46,13 @@ The most loaded part of `hashtable_find()` is `memcmp()` call, as expected.
 ---
 ## New hash function and `memcmp()` optimization
 
-First optimization introduces `memcmp()` substitution using 32-byte length limitation and new hash function.
+First optimization introduces `memcmp()` optimization using 32-byte length limitation and new hash function.
 
 <img src = "resources/first_opt/code_.png">
 
 We'll use size limitation to reduce execution time.
 We replace `len` argument with compile-time constant `KEY_SIZE` and require key to be in buffer of `KEY_SIZE`.
-That way compiler generates simple ariphmetic operations instead of `memcpy()` call. Also it removed `strlen()` call in the beginning.
+That way compiler generates simple ariphmetic operations instead of `memcmp()` call. Also it removed `strlen()` call in the beginning.
 
 <img src = "resources/first_opt/find_.png">
 
