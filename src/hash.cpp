@@ -1,6 +1,5 @@
 #include <immintrin.h>
 
-#include "hash.h"
 #include "Hashtable.h"
 
 uint32_t crc32(const void* data)

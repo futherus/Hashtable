@@ -15,11 +15,15 @@
         }                                                                             \
     } while(0)                                                                        \
 
-int hashtable_ctor(Hashtable* tbl, size_t size, uint32_t (*hash_func)(const void* data))
+int hashtable_ctor(Hashtable* tbl, size_t size, uint32_t (*hash_func)(const void* data) = nullptr)
 {
-    assert(tbl && hash_func);
+    assert(tbl);
     assert(size > 0);
 
+    if(hash_func)
+        tbl->hash_func = hash_func;
+    else
+        tbl->hash_func = &crc32;
     tbl->data = (List*) calloc(size, sizeof(List));
     ASSERT(tbl->data, HASHTABLE_BAD_ALLOC);
 
@@ -82,7 +86,7 @@ static inline int compare_keys(List* list, __m256i avx_key)
 int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
 {
     assert(tbl && key);
-    assert(tbl->hash_func && tbl->size);
+    assert(tbl->hash_func && tbl->size && tbl->data);
 
     uint32_t hash = tbl->hash_func(key);
     List* list = &tbl->data[hash % tbl->size];  // change to shift?
@@ -103,13 +107,18 @@ int hashtable_insert(Hashtable* tbl, const char* key, ht_elem_t value)
     tmp_pos = list_push_back(list, elem);
     ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST);
 
+    tbl->elem_count++;
+
     return HASHTABLE_NOERR;
 }
 
 int hashtable_delete(Hashtable* tbl, const char* key)
 {
     assert(tbl && key);
-    assert(tbl->hash_func && tbl->size);
+    assert(tbl->hash_func && tbl->size && tbl->data);
+
+    if(tbl->elem_count == 0)
+        return HASHTABLE_NOTFOUND;
 
     uint32_t hash = tbl->hash_func(key);
     List* list = &tbl->data[hash % tbl->size];  // change to shift?
@@ -126,13 +135,18 @@ int hashtable_delete(Hashtable* tbl, const char* key)
     tmp_pos = list_delete(list, tmp_pos);
     ASSERT(tmp_pos >= LIST_HEADER_POS || tmp_pos == LIST_EMPTY, HASHTABLE_BAD_LIST); // tmp_pos < -1 -> error code
 
+    tbl->elem_count--;
+
     return HASHTABLE_NOERR;
 }
 
 int hashtable_find(Hashtable* tbl, const char* key, ht_elem_t* retvalue)
 {
     assert(tbl && key && retvalue);
-    assert(tbl->hash_func && tbl->size);
+    assert(tbl->hash_func && tbl->size && tbl->data);
+
+    if(tbl->elem_count == 0)
+        return HASHTABLE_NOTFOUND;
 
     uint32_t hash = tbl->hash_func(key);
     List* list = &tbl->data[hash % tbl->size];  // change to shift?
@@ -147,6 +161,32 @@ int hashtable_find(Hashtable* tbl, const char* key, ht_elem_t* retvalue)
         return HASHTABLE_NOTFOUND;
     
     *retvalue = list->node_arr[tmp_pos].data.obj;
+
+    return HASHTABLE_NOERR;
+}
+
+int hashtable_visitor(Hashtable* tbl, void(*func)(const ht_elem_t*))
+{
+    assert(tbl && func);
+    assert(tbl->hash_func && tbl->size && tbl->data);
+
+    if(tbl->elem_count == 0)
+        return HASHTABLE_NOERR;
+
+    for(size_t iter = 0; iter < tbl->size; iter++)
+    {
+        List* list = &tbl->data[iter];
+        list_elem_t tmp = {};
+        int tmp_pos = LIST_HEADER_POS;
+
+        do
+        {
+            tmp_pos = list_next(list, tmp_pos, &tmp);
+            ASSERT(tmp_pos >= LIST_HEADER_POS, HASHTABLE_BAD_LIST);
+
+            func(&tmp.obj);
+        } while(tmp_pos != LIST_HEADER_POS);
+    }
 
     return HASHTABLE_NOERR;
 }
